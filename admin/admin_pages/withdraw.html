@@ -1,0 +1,13 @@
+<h2 style="margin-top: 0; margin-bottom: 25px;">Withdrawal Requests</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button id="filter-pending" onclick="window.filterWithdrawals('Pending')" style="background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer;">Pending</button>
+        <button id="filter-completed" onclick="window.filterWithdrawals('Completed')" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer;">Completed/Rejected</button>
+    </div>
+
+    <div id="admin-withdraw-list" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="text-align: center; color: var(--text-muted); padding: 30px;">Loading requests from Firebase...</div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+<h2 style="margin-top: 0; margin-bottom: 25px;">Game Manager</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">Publish New Game</h3>
+    <form onsubmit="window.publishNewGame(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <input type="text" id="game-title" required placeholder="Game Title (e.g., Coin Slasher)" style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px;">
+            
+            <input type="text" id="game-file-id" required placeholder="File Name (e.g., coin_slasher)" style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px;">
+        </div>
+
+        <textarea id="game-desc" required placeholder="Short Description..." style="width: 100%; height: 60px; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px;"></textarea>
+        
+        <textarea id="game-rules" required placeholder="How to Play (e.g., Swipe to slash coins. Avoid skulls!)" style="width: 100%; height: 60px; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px;"></textarea>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Entry Fee (🪙)</label>
+                <input type="number" id="game-fee" required value="50" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+            </div>
+            <div>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Win Reward (🪙)</label>
+                <input type="number" id="game-reward" required value="100" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+            </div>
+            <div>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Icon (Emoji/URL)</label>
+                <input type="text" id="game-icon" required placeholder="🎮" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+            </div>
+        </div>
+
+        <button type="submit" style="width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Publish Game</button>
+    </form>
+</div>
+
+<h3 style="margin-bottom: 15px;">Live Games</h3>
+<div id="admin-games-list" style="display: flex; flex-direction: column; gap: 12px;"></div>

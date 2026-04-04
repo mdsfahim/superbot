@@ -1,0 +1,49 @@
+<h2 style="margin-top: 0; margin-bottom: 25px;">Store Management</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">🛍️ Add Store Item</h3>
+    <form id="admin-add-item-form" onsubmit="window.addNewStoreItem(event)">
+        <div class="responsive-grid" style="margin-bottom: 10px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Item Title</label>
+                <input type="text" id="item-title" required placeholder="100 BDT bKash" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Subtitle</label>
+                <input type="text" id="item-subtitle" required placeholder="Direct Transfer" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+        </div>
+        <div class="responsive-grid" style="margin-bottom: 10px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Price (Coins)</label>
+                <input type="number" id="item-price" required style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Category</label>
+                <select id="item-category" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px; outline: none;">
+                    <option value="Cash">Cashout (bKash/Nagad)</option>
+                    <option value="Mobile">Mobile Top-up</option>
+                    <option value="Crypto">Crypto (Binance)</option>
+                </select>
+            </div>
+        </div>
+        <div class="responsive-grid" style="margin-bottom: 15px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Emoji Icon</label>
+                <input type="text" id="item-icon" required placeholder="💸" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Background (CSS Color/Gradient)</label>
+                <input type="text" id="item-theme" required placeholder="linear-gradient(135deg, #e2136e, #f7941d)" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+        </div>
+        <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add to Store</button>
+    </form>
+</div>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">📦 Current Inventory</h3>
+    <div id="admin-store-list" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading inventory...</div>
+    </div>
+</div>

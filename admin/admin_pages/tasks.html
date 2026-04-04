@@ -1,0 +1,70 @@
+<h2 style="margin-top: 0; margin-bottom: 25px;">Earn Page Manager</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px;">
+    <h3 style="margin-top: 0; margin-bottom: 15px; color: #ffcc00;">Ad Networks Control Panel</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        
+        <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #3b82f6;">▶️ Standard Ad (Adsgram)</label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="ad-adsgram-enabled" checked style="width: 18px; height: 18px;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Show to Users</span>
+                </label>
+            </div>
+            <input type="text" id="ad-adsgram-id" placeholder="Block ID (int-23202)" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <input type="number" id="ad-adsgram-reward" placeholder="Reward Amount (e.g. 50)" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+        </div>
+
+        <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #a855f7;">💎 Premium Ad (LibTL)</label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                   <input type="checkbox" id="ad-libtl-enabled" checked style="width: 18px; height: 18px;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Show to Users</span>
+                </label>
+            </div>
+            <input type="text" id="ad-libtl-id" placeholder="Zone ID (9683040)" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <input type="number" id="ad-libtl-reward" placeholder="Reward Amount (e.g. 100)" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+        </div>
+
+    </div>
+    
+    <button onclick="window.saveAdSettings()" style="margin-top: 15px; width: 100%; background: var(--accent-color); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Update Ad Settings</button>
+</div>
+<h2 style="margin-top: 0; margin-bottom: 25px;">Task Manager</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">➕ Create New Task</h3>
+    <form id="admin-add-task-form" onsubmit="window.addNewTask(event)">
+        <div class="responsive-grid" style="margin-bottom: 15px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Task Title</label>
+                <input type="text" id="task-title" required placeholder="e.g. Subscribe to YouTube" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Reward (Coins)</label>
+                <input type="number" id="task-reward" required placeholder="e.g. 500" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+        </div>
+        <div class="responsive-grid" style="margin-bottom: 15px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Link (URL)</label>
+                <input type="url" id="task-link" required placeholder="https://youtube.com/..." style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Emoji Icon</label>
+                <input type="text" id="task-icon" required placeholder="📺" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+            </div>
+        </div>
+        <button type="submit" style="background: var(--accent-color); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Task</button>
+    </form>
+</div>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">📋 Active Tasks</h3>
+    <div id="admin-tasks-list" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading tasks...</div>
+    </div>
+</div>

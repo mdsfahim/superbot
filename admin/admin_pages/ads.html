@@ -1,0 +1,21 @@
+<h2 style="margin-top: 0; margin-bottom: 25px;">Requests Manager</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+        <button id="tab-withdrawals" onclick="window.switchRequestTab('withdrawals')" style="background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">Withdrawals</button>
+        <button id="tab-ads" onclick="window.switchRequestTab('ads')" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">Ad Campaigns</button>
+    </div>
+
+    <div id="withdrawals-section">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button id="filter-pending" onclick="window.filterWithdrawals('Pending')" style="background: var(--accent-color); color: white; border: none; padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: bold; cursor: pointer;">Pending</button>
+            <button id="filter-completed" onclick="window.filterWithdrawals('Completed')" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: bold; cursor: pointer;">Completed/Rejected</button>
+        </div>
+        <div id="admin-withdraw-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+
+    <div id="ads-section" style="display: none;">
+        <div id="admin-ads-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+</div>

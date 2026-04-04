@@ -1,0 +1,28 @@
+<h2 style="margin-top: 0; margin-bottom: 25px;">Deposit Manager</h2>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+        <button id="tab-dep-requests" onclick="window.switchDepositTab('requests')" style="background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">Review Deposits</button>
+        <button id="tab-dep-methods" onclick="window.switchDepositTab('methods')" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">Manage Methods</button>
+    </div>
+
+    <div id="dep-requests-section">
+        <div id="admin-deposit-requests-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+
+    <div id="dep-methods-section" style="display: none;">
+        <form onsubmit="window.addDepositMethod(event)" style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <div class="responsive-grid" style="margin-bottom: 10px;">
+                <input type="text" id="dm-title" required placeholder="Method Name (e.g. bKash, Binance)" style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+                <input type="text" id="dm-currency" required placeholder="Currency (e.g. BDT, USDT)" style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+              <input type="text" id="dm-icon" required placeholder="Emoji (💳) OR Image Link (https://...)" style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+            </div>
+            <input type="text" id="dm-address" required placeholder="Your Receive Number/Address" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <input type="text" id="dm-instructions" required placeholder="Instructions (e.g. 100 BDT = 1000 Coins. Personal Number.)" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <button type="submit" style="background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Payment Method</button>
+        </form>
+        
+        <div id="admin-deposit-methods-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+</div>
