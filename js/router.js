@@ -10,7 +10,6 @@ window.updateTopBarUI = function() {
     if (nameEl) nameEl.innerText = window.currentUser.name;
     if (walletEl) walletEl.innerText = window.currentUser.balance.toLocaleString();
     
-    // FIXED: Corrupted coin emoji and missing quote mark restored!
     if (storeBalanceEl) storeBalanceEl.innerText = window.currentUser.balance.toLocaleString() + ' 🪙';
     
     window.calculateUserLevel(window.currentUser.balance);
@@ -32,18 +31,26 @@ window.calculateUserLevel = function(balance) {
     document.documentElement.style.setProperty('--current-level-color', `var(${currentLevel.color})`);
 };
 
-// 👉 THE FIX: Added pushHistory parameter
 window.navigateTo = async function(pageName, clickedElement, pushHistory = true) {
     
-    // 1. Tell the phone's browser history that we moved to a new page!
     if (pushHistory) {
         history.pushState({ view: 'main', page: pageName }, '', '?page=' + pageName);
+    }
+
+    // ==========================================
+    // 🚀 TELEGRAM NATIVE BACK BUTTON LOGIC
+    // ==========================================
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+        if (pageName === 'home') {
+            window.Telegram.WebApp.BackButton.hide(); // Hide on home so physical back closes app
+        } else {
+            window.Telegram.WebApp.BackButton.show(); // Show on other tabs
+        }
     }
 
     const appContent = document.getElementById('app-content');
     const navItems = document.querySelectorAll('.nav-item');
 
-    // Update active nav icon
     navItems.forEach(item => {
         item.classList.remove('active');
         const icon = item.querySelector('ion-icon');
@@ -60,9 +67,6 @@ window.navigateTo = async function(pageName, clickedElement, pushHistory = true)
         }
     }
 
-    // ==========================================
-    // DYNAMIC PAGE-SPECIFIC SKELETONS
-    // ==========================================
     let skeletonHTML = '';
 
     if (pageName === 'earn') {
@@ -108,7 +112,6 @@ window.navigateTo = async function(pageName, clickedElement, pushHistory = true)
         const html = await response.text();
         appContent.innerHTML = html;
         
-        // PAGE TRIGGERS
         if (pageName === 'home') { if (typeof window.initHomeLogic === 'function') window.initHomeLogic(); }
         if (pageName === 'earn') window.renderTasks();
         if (pageName === 'profile') window.renderProfile();
@@ -122,16 +125,17 @@ window.navigateTo = async function(pageName, clickedElement, pushHistory = true)
     }
 };
 
-// ==========================================
-// SUBPAGE & OVERLAY ROUTING
-// ==========================================
-
-// 👉 THE FIX: Added pushHistory parameter
 window.openSubPage = async function(folder, file, title, pushHistory = true) {
     
-    // 2. Tell the browser we opened a popup
     if (pushHistory) {
         history.pushState({ view: 'sub', folder: folder, file: file, title: title }, '', '?view=' + file);
+    }
+
+    // ==========================================
+    // 🚀 TELEGRAM NATIVE BACK BUTTON LOGIC
+    // ==========================================
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+        window.Telegram.WebApp.BackButton.show(); // Always show inside a popup!
     }
 
     const container = document.getElementById('subpage-container');
@@ -141,7 +145,6 @@ window.openSubPage = async function(folder, file, title, pushHistory = true) {
     if (!container) return;
     titleArea.innerText = title;
     
-    // Premium Subpage Skeleton
     contentArea.innerHTML = `
         <div style="display:flex; flex-direction:column; gap: 15px; padding: 20px;">
             <div class="skeleton" style="width: 100%; height: 60px; border-radius: 12px;"></div>
@@ -160,7 +163,6 @@ window.openSubPage = async function(folder, file, title, pushHistory = true) {
         const html = await response.text();
         contentArea.innerHTML = html;
         
-        // SUBPAGE AUTO-START TRIGGERS
         if (file === 'deposit' && typeof window.initDepositLogic === 'function') window.initDepositLogic();
         if (file === 'transactions' && typeof window.initTransactionsLogic === 'function') window.initTransactionsLogic();
         if (folder === 'games' && typeof window[`init_${file}`] === 'function') window[`init_${file}`]();
@@ -170,7 +172,6 @@ window.openSubPage = async function(folder, file, title, pushHistory = true) {
     }
 };
 
-// 👉 THE FIX: Let the system handle closing
 window.closeSubPage = function() {
     history.back();
 };
@@ -213,5 +214,17 @@ window.addEventListener('popstate', (event) => {
         window.hideSubpageForce();
         const firstNavBtn = document.querySelectorAll('.nav-item')[0];
         if (firstNavBtn) window.navigateTo('home', firstNavBtn, false);
+    }
+});
+
+// ==========================================
+// 4. BIND TELEGRAM BUTTON TO ROUTER
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+        // When Telegram detects a physical back swipe or top-left back button press:
+        window.Telegram.WebApp.BackButton.onClick(() => {
+            history.back(); // Trigger our router's popstate logic!
+        });
     }
 });
