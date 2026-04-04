@@ -1,0 +1,33 @@
+<div style="text-align: center; margin-bottom: 25px;">
+    <div style="font-size: 3rem; margin-bottom: 10px;">💳</div>
+    <h3 id="checkout-item-title" style="margin-bottom: 5px;">Redeem Reward</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Fill in your details below to process your withdrawal.</p>
+</div>
+
+<div style="background: var(--surface-color); padding: 20px; border-radius: 16px;">
+    
+    <div style="background: rgba(255,204,0,0.1); border: 1px solid rgba(255,204,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between;">
+        <span style="color: var(--text-muted); font-size: 0.9rem;">Total Cost:</span>
+        <span id="checkout-item-price" style="color: #ffcc00; font-weight: bold;">0 🪙</span>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Select Method</label>
+        <select id="checkout-method" onchange="window.updateCheckoutUI()" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px; border-radius: 8px; outline: none; appearance: none;">
+            <option value="Mobile">bKash / Nagad / Rocket</option>
+            <option value="Email">Binance / Crypto (Email)</option>
+        </select>
+    </div>
+    
+    <div style="margin-bottom: 25px;">
+        <label id="checkout-input-label" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Account Number</label>
+        
+        <input type="text" id="checkout-account" placeholder="e.g. 01XXXXXXXXX or +8801XXXXXXXXX" oninput="window.handleEmailSuggestions()" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px; border-radius: 8px; outline: none;">
+        
+        <div id="email-suggestions" style="display: none; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -ms-overflow-style: none;">
+            </div>
+        <style>#email-suggestions::-webkit-scrollbar { display: none; }</style>
+    </div>
+
+    <button onclick="window.confirmWithdrawal()" style="width: 100%; background: var(--accent-color); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; font-size: 1.05rem; cursor: pointer;">Confirm Withdrawal</button>
+</div>
