@@ -5,6 +5,22 @@
 window.currentUser = null;
 window.userRef = null;
 
+// 👉 THE FIX: A universal UI refresher that updates whatever page is currently open!
+window.updateAllUI = function() {
+    // 1. Always update the Top Bar (Coins & Name)
+    if (typeof window.updateTopBarUI === 'function') window.updateTopBarUI();
+    
+    // 2. If the Home page is currently on the screen, refresh its live stats!
+    if (document.getElementById('home-stat-refs') && typeof window.initHomeLogic === 'function') {
+        window.initHomeLogic();
+    }
+    
+    // 3. If the Profile page is currently on the screen, refresh its live stats!
+    if (document.getElementById('profile-page-balance') && typeof window.renderProfile === 'function') {
+        window.renderProfile();
+    }
+};
+
 window.syncUserData = async function() {
     
     // 1. SAFELY CONNECT TO TELEGRAM
@@ -27,10 +43,11 @@ window.syncUserData = async function() {
 
     const userId = tgUser.id ? tgUser.id.toString() : 'unknown_id';
 
-    // 👉 THE CRITICAL FIX: Pre-Initialize to stop the "null" error!
+    // Pre-Initialize to stop "null" errors
     window.currentUser = {
         id: userId,
         name: `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
+        photoUrl: tgUser.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${tgUser.first_name}&backgroundColor=0088cc,10a37f`,
         balance: 0,
         totalReferrals: 0,
         completedTasks: [],
@@ -43,22 +60,59 @@ window.syncUserData = async function() {
         const doc = await window.userRef.get();
 
         if (!doc.exists) {
+            // ==========================================
             // BRAND NEW USER REGISTRATION
+            // ==========================================
             let referrerId = null;
+            let welcomeTitle = "Welcome to SUPERBOT!";
+            let welcomeMsg = "You received a <b style='color: #ffcc00;'>500 🪙</b> signup bonus. Complete tasks to grow your wallet!";
 
             if (startParam.startsWith('ref_')) {
                 referrerId = startParam.replace('ref_', '');
                 
                 if (referrerId !== userId) {
                     try {
-                        await window.db.collection('users').doc(referrerId).update({
-                            balance: firebase.firestore.FieldValue.increment(1000),
-                            totalReferrals: firebase.firestore.FieldValue.increment(1)
-                        });
+                        // 1. Get the referrer's current stats
+                        const refDoc = await window.db.collection('users').doc(referrerId).get();
+                        
+                        if (refDoc.exists) {
+                            const newTotal = (refDoc.data().totalReferrals || 0) + 1;
+                            
+                            // 2. Reward the Referrer in Firebase
+                            await window.db.collection('users').doc(referrerId).update({
+                                balance: firebase.firestore.FieldValue.increment(1000),
+                                totalReferrals: firebase.firestore.FieldValue.increment(1)
+                            });
+
+                            // 3. SEND DIRECT TELEGRAM MESSAGE TO THE REFERRER!
+                            const botToken = "YOUR_BOT_TOKEN_HERE"; // ⚠️ PASTE YOUR BOT TOKEN HERE
+                            
+                            if (botToken !== "YOUR_BOT_TOKEN_HERE") {
+                                const tgMsg = `🎉 *Great News!*\n\n*${tgUser.first_name}* just joined SUPERBOT using your referral link!\n\n👥 *Total Referrals:* ${newTotal}\n💰 *Reward:* +1,000 🪙 added to your balance!`;
+                                
+                                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        chat_id: referrerId,
+                                        text: tgMsg,
+                                        parse_mode: "Markdown",
+                                        reply_markup: {
+                                            inline_keyboard: [[{ text: "🚀 Open App", url: "http://t.me/FPSearnbot/app" }]]
+                                        }
+                                    })
+                                }).catch(err => console.error("Notification error:", err));
+                            }
+                            
+                            // Customize the popup for the new user because they used a link
+                            welcomeTitle = "You were invited!";
+                            welcomeMsg = "You received a <b style='color: #ffcc00;'>500 🪙</b> bonus for using a referral link. Start earning now!";
+                        }
                     } catch (e) { console.error("Failed to reward referrer", e); }
                 }
             }
 
+            // Create the new user
             window.currentUser.balance = 500;
             window.currentUser.invitedBy = referrerId;
             window.currentUser.isBanned = false;
@@ -66,9 +120,16 @@ window.syncUserData = async function() {
             window.currentUser.createdAt = firebase.firestore.FieldValue.serverTimestamp();
 
             await window.userRef.set(window.currentUser);
-            window.safeAlert("Welcome! You received 500 🪙 as a signup bonus.");
             
-            // Attach live connection
+            // SHOW THE BEAUTIFUL HTML POPUP INSTEAD OF THE UGLY ALERT
+            const welcomePopup = document.getElementById('welcome-popup');
+            if (welcomePopup) {
+                document.getElementById('welcome-title').innerHTML = welcomeTitle;
+                document.getElementById('welcome-message').innerHTML = welcomeMsg;
+                welcomePopup.style.display = 'flex';
+                window.safeHaptic('success');
+            }
+            
             attachRealtimeListener();
 
         } else {
@@ -82,12 +143,11 @@ window.syncUserData = async function() {
             }
 
             processDailyStreak();
-            
-            // Attach live connection
             attachRealtimeListener();
         }
 
-        if(typeof window.updateTopBarUI === 'function') window.updateTopBarUI();
+        // 👉 THE FIX: Call the UI refresher once initial Firebase data is loaded!
+        window.updateAllUI();
 
     } catch (error) {
         console.error("Critical Sync Error:", error);
@@ -106,17 +166,16 @@ function attachRealtimeListener() {
         if (doc.exists) {
             const userData = doc.data();
 
-            // Instant Ban Enforcement
             if (userData.isBanned === true) {
                 enforceBan();
                 return; 
             }
 
-            // Live Balance & Tasks Sync
             window.currentUser.balance = userData.balance || 0;
             window.currentUser.completedTasks = userData.completedTasks || []; 
             
-            if(typeof window.updateTopBarUI === 'function') window.updateTopBarUI();
+            // 👉 THE FIX: Automatically refresh the screen if anything changes live!
+            window.updateAllUI();
         }
     });
 }
@@ -175,7 +234,7 @@ async function processDailyStreak() {
         }
 
         window.safeAlert(`Day ${newStreak} Streak! You earned ${dailyReward} 🪙.`);
-        if(typeof window.updateTopBarUI === 'function') window.updateTopBarUI();
+        window.updateAllUI();
     }
 }
 
@@ -195,9 +254,6 @@ window.processTransaction = async function(amount, successMessage) {
         await window.userRef.update({
             balance: firebase.firestore.FieldValue.increment(amount)
         });
-        
-        // Note: The 'attachRealtimeListener' will automatically see this update
-        // and update the top UI bar for us!
         
         if (successMessage) {
             window.safeHaptic('success');
