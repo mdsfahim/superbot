@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPS Admin Control</title>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <style>
+        /* CRITICAL FIX 1: Border Box stops padding from breaking widths */
+        * { box-sizing: border-box; }
+        
+        :root {
+            --bg-color: #0f0f0f;
+            --surface-color: #1c1c1e;
+            --accent-color: #0a84ff;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --danger: #ff453a;
+            --success: #32d74b;
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        
+        /* Mobile Header */
+        .mobile-header { display: none; background: var(--surface-color); padding: 15px 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 50; width: 100%; flex-shrink: 0; }
+        .menu-btn { background: transparent; color: white; border: none; font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; padding: 0; }
+
+        /* Admin Sidebar */
+        /* CRITICAL FIX 2: flex-shrink: 0 prevents the sidebar from being crushed */
+        .admin-sidebar { width: 250px; flex-shrink: 0; background: var(--surface-color); padding: 20px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid rgba(255,255,255,0.05); z-index: 100; transition: transform 0.3s ease; }
+        .admin-brand { font-size: 1.5rem; font-weight: bold; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .nav-btn { background: transparent; color: var(--text-muted); border: none; padding: 12px 15px; border-radius: 10px; text-align: left; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-btn.active { background: var(--accent-color); color: white; }
+        
+        /* Main Content Area */
+        /* CRITICAL FIX 3: overflow-x: hidden stops the off-screen subpage from breaking the grid */
+        .admin-main { flex: 1; width: 100%; overflow-y: auto; overflow-x: hidden; padding: 30px; background: var(--bg-color); position: relative; }
+        
+        /* Subpage Slide-in */
+        #admin-subpage { position: absolute; top: 0; left: 100%; width: 100%; min-height: 100%; background: var(--bg-color); transition: left 0.3s ease; z-index: 10; padding: 30px; }
+        #admin-subpage.open { left: 0; }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); z-index: 90; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s ease; }
+
+        /* RESPONSIVE UTILITIES */
+        .responsive-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .user-list-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 50px; gap: 10px; align-items: center; }
+        
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-header { display: flex; }
+            
+            .admin-main { padding: 15px; }
+            #admin-subpage { padding: 15px; }
+            
+            /* THE FIX: Force single column and override everything else */
+            .responsive-grid { grid-template-columns: 1fr !important; }
+            
+            /* Slide Sidebar off-screen securely */
+            .admin-sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); box-shadow: 5px 0 25px rgba(0,0,0,0.5); }
+            .admin-sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; opacity: 1; }
+            
+            /* Hide non-essential data on mobile tables */
+            .hide-mobile { display: none !important; }
+            .user-list-grid { grid-template-columns: 2fr 1fr 50px; }
+            
+            /* Stack profile items */
+            .profile-header-box { flex-direction: column; text-align: center; }
+            .profile-action-btns { flex-direction: column; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div id="admin-login-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: var(--surface-color); padding: 40px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); width: 100%; max-width: 400px; text-align: center;">
+            <ion-icon name="shield-checkmark" style="font-size: 4rem; color: var(--accent-color); margin-bottom: 20px;"></ion-icon>
+            <h2 style="margin-top: 0;">Admin Login</h2>
+            <form id="admin-login-form" onsubmit="window.adminLogin(event)">
+                <input type="email" id="admin-email" required placeholder="Admin Email" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                <input type="password" id="admin-pass" required placeholder="Password" style="width: 100%; background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                <button type="submit" id="admin-login-btn" style="width: 100%; background: var(--accent-color); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05rem;">Access Dashboard</button>
+            </form>
+        </div>
+    </div>
+    <div class="mobile-header">
+        <div class="admin-brand" style="margin: 0; font-size: 1.2rem;"><ion-icon name="shield-checkmark"></ion-icon> FPS Admin</div>
+        <button class="menu-btn" onclick="toggleSidebar()"><ion-icon name="menu-outline"></ion-icon></button>
+    </div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="admin-sidebar" id="admin-sidebar">
+        <div class="admin-brand hide-mobile"><ion-icon name="shield-checkmark"></ion-icon> FPS Admin</div>
+        <button class="nav-btn active" onclick="loadAdminPage('dashboard', this)"><ion-icon name="grid-outline"></ion-icon> Dashboard</button>
+       <button class="nav-btn" onclick="loadAdminPage('users', this)"><ion-icon name="people-outline"></ion-icon> Users</button>
+        
+        <button class="nav-btn" onclick="loadAdminPage('games', this)"><ion-icon name="game-controller-outline"></ion-icon> Games</button>
+        
+        <button class="nav-btn" onclick="loadAdminPage('tasks', this)"><ion-icon name="list-outline"></ion-icon> Tasks</button>
+        <button class="nav-btn" onclick="loadAdminPage('store', this)"><ion-icon name="cart-outline"></ion-icon> Store</button>
+        
+        <button class="nav-btn" onclick="loadAdminPage('deposits', this)"><ion-icon name="wallet-outline"></ion-icon> Deposits</button>
+        
+        <button class="nav-btn" onclick="loadAdminPage('ads', this)"><ion-icon name="megaphone-outline"></ion-icon> Ad campaign & Withdraws</button>
+    </div>
+
+    <div class="admin-main">
+        <div id="admin-content"></div>
+        <div id="admin-subpage">
+            <button onclick="closeAdminSubpage()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; width: fit-content; font-weight: bold;">← Back</button>
+            <div id="admin-subpage-content"></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+    </script>
+    <script src="js/admin_core.js"></script>
+</body>
+</html>
