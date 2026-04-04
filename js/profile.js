@@ -50,11 +50,13 @@ window.renderProfile = function() {
 window.copyReferralLink = function() {
     if (!window.currentUser || !window.currentUser.id) return;
 
-    // REPLACE 'YourBotUsername' WITH YOUR ACTUAL TELEGRAM BOT USERNAME!
-    const botUsername = "YourBotUsername"; 
+    // 1. Your exact bot username
+    const botUsername = "FPSearnbot"; 
     
-    // Generate the unique link
-    const inviteLink = `https://t.me/${botUsername}?start=ref_${window.currentUser.id}`;
+    // 2. THE FIX: Using Telegram's Direct App Link format
+    // NOTE: Change "/app" to whatever short-name you gave your Mini App in BotFather
+    const inviteLink = `https://t.me/${botUsername}/app?startapp=ref_${window.currentUser.id}`;
+    
     const customMessage = `🚀 Join me on SUPERBOT and earn real money!\n\nUse my invite link to get a starting bonus: ${inviteLink}`;
 
     // Update UI Button securely
@@ -67,7 +69,7 @@ window.copyReferralLink = function() {
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(customMessage);
     } else {
-        // Fallback for older browsers / HTTP testing
+        // Fallback for older browsers
         let textArea = document.createElement("textarea");
         textArea.value = customMessage;
         textArea.style.position = "fixed";
@@ -79,7 +81,6 @@ window.copyReferralLink = function() {
         textArea.remove();
     }
 
-    // Trigger haptic and reset button
     window.safeHaptic('success');
     
     setTimeout(() => {
