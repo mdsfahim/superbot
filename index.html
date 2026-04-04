@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Earning Mini App</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="watermark">SUPERBOT</div>
+        <div class="user-info">
+            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Felixr" alt="User" class="avatar">
+            <div class="user-details">
+                <span class="user-name">Loading...</span>
+                <span class="user-level" id="user-level-display">Lvl 3</span>
+            </div>
+        </div>
+        <div class="wallet">
+            <span>1,250</span><span>🪙</span>
+        </div>
+    </header>
+
+    <main id="app-content">
+        </main>
+
+    <nav id="bottom-nav">
+        <div class="nav-item active" onclick="navigateTo('home', this)">
+            <ion-icon name="home" data-icon="home" class="nav-icon"></ion-icon>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('earn', this)">
+            <ion-icon name="cash-outline" data-icon="cash" class="nav-icon"></ion-icon>
+            <span>Earn</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('store', this)">
+            <ion-icon name="cart-outline" data-icon="cart" class="nav-icon"></ion-icon>
+            <span>Store</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('game', this)">
+            <ion-icon name="game-controller-outline" data-icon="game-controller" class="nav-icon"></ion-icon>
+            <span>Game</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('ads', this)">
+            <ion-icon name="megaphone-outline" data-icon="megaphone" class="nav-icon"></ion-icon>
+            <span>Ads</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('profile', this)">
+            <ion-icon name="person-outline" data-icon="person" class="nav-icon"></ion-icon>
+            <span>Profile</span>
+        </div>
+    </nav>
+<div id="subpage-container" class="subpage-overlay">
+        <div class="subpage-header">
+            <button class="back-btn" onclick="closeSubPage()">
+                <ion-icon name="chevron-back-outline"></ion-icon> Back
+            </button>
+            <h3 id="subpage-title">Loading...</h3>
+            <div style="width: 60px;"></div> </div>
+        <div id="subpage-content" class="subpage-content">
+            </div>
+    </div>
+    <div id="tg-warning-popup" class="tg-popup-overlay">
+        <div class="tg-popup-content">
+            <button id="dev-close-btn" class="dev-close-btn" onclick="closeWarningPopup()">✕</button>
+            <div class="tg-popup-icon">⚠️</div>
+            <h2>Telegram Required</h2>
+            <p>Please open this via our official Telegram Bot.</p>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    
+    <div id="banned-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color, #0f0f0f); z-index: 99999; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; color: white;">
+        <div style="background: rgba(255, 69, 58, 0.1); width: 100px; height: 100px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+            <ion-icon name="warning" style="font-size: 4rem; color: #ff453a;"></ion-icon>
+        </div>
+        <h1 style="color: #ff453a; margin-top: 0; margin-bottom: 10px;">Account Suspended</h1>
+        <p style="color: var(--text-muted, #8e8e93); font-size: 1.1rem; line-height: 1.5; margin-bottom: 30px;">
+            You have been banned by the authority from using this platform.<br><br>
+            Please contact support for further information.
+        </p>
+        
+        <button onclick="window.Telegram.WebApp.close()" style="background: rgba(255, 69, 58, 0.1); color: #ff453a; border: 1px solid #ff453a; padding: 14px 30px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer;">Close App</button>
+    </div>
+    <script src="js/home.js"></script>
+    <script src="js/core.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ads.js"></script>
+    <script src="js/profile.js"></script>
+<script src="js/deposit.js"></script>
+<script src="js/transactions.js"></script>
+<script src="js/games/coin_slasher.js"></script>
+<script src="js/games/perfect_shot.js"></script>
+<script src="js/games/meteor_dodge.js"></script> 
+    <script>
+        window.onload = () => {
+            // 1. SAFELY CONNECT TO TELEGRAM
+            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+                window.tg = window.Telegram.WebApp;
+                window.tg.expand(); // Optional: Makes the mini-app full screen!
+            }
+
+            // 2. FETCH USER DETAILS
+            if (window.tg && window.tg.initDataUnsafe && window.tg.initDataUnsafe.user) {
+                const tgUser = window.tg.initDataUnsafe.user;
+                
+                const userNameEl = document.querySelector('.user-name');
+                if(userNameEl) userNameEl.innerText = tgUser.first_name;
+
+                const avatarEl = document.querySelector('.avatar');
+                if(avatarEl) {
+                    if (tgUser.photo_url) {
+                        avatarEl.src = tgUser.photo_url;
+                    } else {
+                        avatarEl.src = `https://api.dicebear.com/6.x/initials/svg?seed=${tgUser.first_name}&backgroundColor=0088cc,10a37f`;
+                    }
+                }
+            }
+            
+            // 3. SET INITIAL ROUTER STATE
+            history.replaceState({ view: 'main', page: 'home' }, '', '?page=home');
+
+            // 4. CONNECT TO FIREBASE & MASTER ENGINE
+            window.syncUserData();
+            
+            // 5. LOAD HOME TAB UI
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems.length > 0) {
+                window.navigateTo('home', navItems[0], false); 
+            }
+        };
+    </script>
+</body>
+</html>
