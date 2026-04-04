@@ -1,0 +1,33 @@
+<div style="position: relative; width: 100%; height: 100%; min-height: 75vh; background: linear-gradient(180deg, #0b0b1a 0%, #1a1a2e 100%); border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.05); box-shadow: inset 0 0 30px rgba(0,0,0,0.8); touch-action: none;">
+    
+    <div id="meteor-stars" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(white 1px, transparent 1px); background-size: 50px 50px; opacity: 0.1; pointer-events: none;"></div>
+
+    <canvas id="meteor-canvas" style="display: block; width: 100%; height: 100%;"></canvas>
+
+    <div id="meteor-hud" style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 5;">
+        <div style="background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 50px; border: 1px solid rgba(10, 132, 255, 0.3); font-weight: bold; color: #0a84ff;">
+            ⏱️ <span id="meteor-time">15.0</span>s
+        </div>
+        <div style="background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 50px; border: 1px solid rgba(52, 199, 89, 0.3); font-weight: bold; color: #34c759; font-size: 0.85rem;">
+            Prize: <span id="meteor-prize-display">0</span> 🪙
+        </div>
+    </div>
+
+    <div id="meteor-start-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 10px;">🚀</div>
+        <h2 style="color: white; margin: 0 0 10px 0;">Meteor Survival</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5;">
+            Hold and drag the spaceship to dodge.<br>
+            Survive for <b style="color: #0a84ff;">15 seconds</b> to win the prize!<br>
+            <span style="color: #ff3b30;">If you hit a meteor ☄️, you lose!</span>
+        </p>
+        <button onclick="window.startMeteorRound()" style="background: var(--accent-color); color: white; border: none; padding: 14px 40px; border-radius: 50px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4);">Launch Ship</button>
+    </div>
+
+    <div id="meteor-end-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; z-index: 20; padding: 20px; text-align: center;">
+        <div id="meteor-end-icon" style="font-size: 4rem; margin-bottom: 10px;">💥</div>
+        <h2 id="meteor-end-title" style="color: #ff3b30; margin: 0 0 10px 0;">Ship Destroyed</h2>
+        <p id="meteor-end-text" style="color: var(--text-muted); margin-bottom: 25px;">You collided with a meteor!</p>
+        <button onclick="window.closeSubPage()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; cursor: pointer;">Return to Base</button>
+    </div>
+</div>
