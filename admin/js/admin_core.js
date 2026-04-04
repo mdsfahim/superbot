@@ -173,14 +173,15 @@ async function loadDashboardData() {
             }
         }
 
-        const tasks = JSON.parse(localStorage.getItem('app_tasks')) || [];
-        const store = JSON.parse(localStorage.getItem('app_store_items')) || [];
+        // Fetch real counts from Firebase
+        const tasksSnap = await db.collection('tasks').get();
+        const storeSnap = await db.collection('store').get();
         
         const tasksEl = document.getElementById('dash-tasks-available');
         const storeEl = document.getElementById('dash-store-count');
         
-        if (tasksEl) tasksEl.innerText = tasks.length;
-        if (storeEl) storeEl.innerText = store.length;
+        if (tasksEl) tasksEl.innerText = tasksSnap.size;
+        if (storeEl) storeEl.innerText = storeSnap.size;
 
     } catch (err) {
         console.error(err);
@@ -501,59 +502,93 @@ window.deleteTask = async function(id) {
 };
 
 // ==========================================
-// 8. STORE MANAGER LOGIC
+// 8. STORE MANAGER LOGIC (FIREBASE CONNECTED)
 // ==========================================
-window.loadAdminStore = function() {
+window.loadAdminStore = async function() {
     const list = document.getElementById('admin-store-list');
     if (!list) return;
 
-    let items = JSON.parse(localStorage.getItem('app_store_items')) || [];
-    if (items.length === 0) {
-        list.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 15px;">Store is empty.</div>`;
-        return;
-    }
+    list.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 15px;">Fetching from cloud...</div>`;
 
-    let html = '';
-    items.forEach(item => {
-        html += `
-            <div style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="background: ${item.theme}; width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem;">${item.icon}</div>
-                    <div>
-                        <div style="font-weight: bold;">${item.title}</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);"><span style="color: var(--accent-color);">${item.category}</span> • ${item.price} 🪙</div>
+    try {
+        const snap = await db.collection('store').orderBy('createdAt', 'desc').get();
+        
+        if (snap.empty) {
+            list.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 15px;">Store is empty.</div>`;
+            return;
+        }
+
+        let html = '';
+        snap.forEach(doc => {
+            const item = doc.data();
+            
+            // 👉 THE FIX: Smart Icon Renderer
+            let iconDisplay = '';
+            if (item.icon && item.icon.startsWith('http')) {
+                // If it's a link, render an image that sits perfectly inside the gradient background!
+                iconDisplay = `<div style="background: ${item.theme}; width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; overflow: hidden;"><img src="${item.icon}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;"></div>`;
+            } else {
+                // If it's just an emoji, render the text
+                iconDisplay = `<div style="background: ${item.theme}; width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem;">${item.icon}</div>`;
+            }
+
+            html += `
+                <div style="background: var(--bg-color); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${iconDisplay}
+                        <div>
+                            <div style="font-weight: bold;">${item.title}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);"><span style="color: var(--accent-color);">${item.category}</span> • ${item.price} 🪙</div>
+                        </div>
                     </div>
-                </div>
-                <button onclick="window.deleteStoreItem('${item.id}')" style="background: rgba(255, 69, 58, 0.1); color: var(--danger); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">Delete</button>
-            </div>`;
-    });
-    list.innerHTML = html;
+                    <button onclick="window.deleteStoreItem('${doc.id}')" style="background: rgba(255, 69, 58, 0.1); color: var(--danger); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">Delete</button>
+                </div>`;
+        });
+        list.innerHTML = html;
+    } catch (error) {
+        console.error(error);
+        list.innerHTML = `<div style="text-align: center; color: var(--danger); padding: 15px;">Failed to load store items.</div>`;
+    }
 };
 
-window.addNewStoreItem = function(e) {
+window.addNewStoreItem = async function(e) {
     e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.innerText = "Adding...";
+    btn.disabled = true;
+
     const newItem = {
-        id: Date.now().toString(),
         title: document.getElementById('item-title').value,
         subtitle: document.getElementById('item-subtitle').value,
         price: parseInt(document.getElementById('item-price').value),
         category: document.getElementById('item-category').value,
         icon: document.getElementById('item-icon').value,
-        theme: document.getElementById('item-theme').value
+        theme: document.getElementById('item-theme').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    let items = JSON.parse(localStorage.getItem('app_store_items')) || [];
-    items.push(newItem);
-    localStorage.setItem('app_store_items', JSON.stringify(items));
-    document.getElementById('admin-add-item-form').reset();
-    window.loadAdminStore();
+    
+    try {
+        await db.collection('store').add(newItem);
+        document.getElementById('admin-add-item-form').reset();
+        window.loadAdminStore(); // Refresh the list
+    } catch (error) {
+        alert("Error adding item to store.");
+        console.error(error);
+    } finally {
+        btn.innerText = "Add to Store";
+        btn.disabled = false;
+    }
 };
 
-window.deleteStoreItem = function(id) {
-    if(confirm("Delete this store item?")) {
-        let items = JSON.parse(localStorage.getItem('app_store_items')) || [];
-        items = items.filter(i => i.id !== id);
-        localStorage.setItem('app_store_items', JSON.stringify(items));
-        window.loadAdminStore();
+window.deleteStoreItem = async function(id) {
+    if(confirm("Delete this store item? It will be removed from the User App instantly.")) {
+        try {
+            await db.collection('store').doc(id).delete();
+            window.loadAdminStore();
+        } catch (error) {
+            alert("Failed to delete item.");
+            console.error(error);
+        }
     }
 };
 
