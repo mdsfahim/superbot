@@ -206,14 +206,22 @@ async function loadUsersList() {
             window.allUsersCache.push(data);
 
             const joinedDate = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown';
-            const initial = data.firstName ? data.firstName.charAt(0).toUpperCase() : '?';
+            
+            // THE FIX: Reading the correct "name" field
+            const userName = data.name || data.firstName || 'Unnamed';
+            const initial = userName.charAt(0).toUpperCase();
+
+            // THE FIX: Loading the real profile picture
+            const avatarHtml = data.photoUrl ? 
+                `<img src="${data.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">` :
+                `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); display: flex; justify-content: center; align-items: center; font-weight: bold; flex-shrink: 0;">${initial}</div>`;
 
             html += `
                 <div class="user-list-grid" style="padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
                     <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
-                        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); display: flex; justify-content: center; align-items: center; font-weight: bold; flex-shrink: 0;">${initial}</div>
+                        ${avatarHtml}
                         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            <div style="font-weight: bold; margin-bottom: 2px;">${data.firstName || 'Unnamed'}</div>
+                            <div style="font-weight: bold; margin-bottom: 2px;">${userName}</div>
                             <div style="font-size: 0.8rem; color: var(--text-muted);">ID: ${doc.id.substring(0,8)}...</div>
                         </div>
                     </div>
@@ -248,20 +256,26 @@ window.openUserProfile = function(userId, pushHistory = true) {
     const content = document.getElementById('admin-subpage-content');
     
     const joinedDate = user.createdAt ? user.createdAt.toDate().toLocaleString() : 'Unknown';
-    const initial = user.firstName ? user.firstName.charAt(0).toUpperCase() : '?';
+    
+    // THE FIX: Applying the same fixes to the sub-profile popup!
+    const userName = user.name || user.firstName || 'Unnamed User';
+    const initial = userName.charAt(0).toUpperCase();
 
-    // Check if user is currently banned to change the button color and text
     const isBanned = user.isBanned === true;
     const banText = isBanned ? 'Unban User' : 'Ban User';
     const banColor = isBanned ? 'var(--success)' : 'var(--danger)';
     const banBg = isBanned ? 'rgba(50, 215, 75, 0.1)' : 'rgba(255, 69, 58, 0.1)';
 
+    const avatarHtml = user.photoUrl ? 
+        `<img src="${user.photoUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 3px solid ${isBanned ? 'var(--danger)' : 'var(--accent-color)'}">` :
+        `<div style="width: 80px; height: 80px; border-radius: 50%; background: ${isBanned ? 'var(--danger)' : 'var(--accent-color)'}; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: bold; flex-shrink: 0;">${initial}</div>`;
+
     content.innerHTML = `
         <div class="profile-header-box" style="background: var(--surface-color); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: ${isBanned ? 'var(--danger)' : 'var(--accent-color)'}; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: bold; flex-shrink: 0;">${initial}</div>
+            ${avatarHtml}
             <div style="overflow: hidden; width: 100%;">
                 <h2 style="margin: 0; margin-bottom: 5px; word-wrap: break-word;">
-                    ${user.firstName || 'Unnamed User'} 
+                    ${userName} 
                     ${isBanned ? '<span style="color: var(--danger); font-size: 0.9rem; border: 1px solid var(--danger); padding: 2px 6px; border-radius: 4px; margin-left: 10px;">BANNED</span>' : ''}
                 </h2>
                 <div style="color: var(--text-muted); font-family: monospace; font-size: 0.85rem; word-wrap: break-word;">UID: ${user.id}</div>
