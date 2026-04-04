@@ -1,0 +1,217 @@
+// ==========================================
+// UI MANAGERS & ROUTER
+// ==========================================
+
+window.updateTopBarUI = function() {
+    const nameEl = document.querySelector('.user-name');
+    const walletEl = document.querySelector('.wallet span:first-child');
+    const storeBalanceEl = document.getElementById('store-page-balance'); 
+    
+    if (nameEl) nameEl.innerText = window.currentUser.name;
+    if (walletEl) walletEl.innerText = window.currentUser.balance.toLocaleString();
+    
+    // FIXED: Corrupted coin emoji and missing quote mark restored!
+    if (storeBalanceEl) storeBalanceEl.innerText = window.currentUser.balance.toLocaleString() + ' 🪙';
+    
+    window.calculateUserLevel(window.currentUser.balance);
+};
+
+window.calculateUserLevel = function(balance) {
+    const levels = [
+        { req: 50000, lvl: 5, color: '--lvl5-color' },
+        { req: 15000, lvl: 4, color: '--lvl4-color' },
+        { req: 5000,  lvl: 3, color: '--lvl3-color' },
+        { req: 1000,  lvl: 2, color: '--lvl2-color' },
+        { req: 0,     lvl: 1, color: '--lvl1-color' }
+    ];
+
+    let currentLevel = levels.find(l => balance >= l.req) || levels[4];
+
+    const levelDisplay = document.getElementById('user-level-display');
+    if (levelDisplay) levelDisplay.innerText = `Lvl ${currentLevel.lvl}`;
+    document.documentElement.style.setProperty('--current-level-color', `var(${currentLevel.color})`);
+};
+
+// 👉 THE FIX: Added pushHistory parameter
+window.navigateTo = async function(pageName, clickedElement, pushHistory = true) {
+    
+    // 1. Tell the phone's browser history that we moved to a new page!
+    if (pushHistory) {
+        history.pushState({ view: 'main', page: pageName }, '', '?page=' + pageName);
+    }
+
+    const appContent = document.getElementById('app-content');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    // Update active nav icon
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        const icon = item.querySelector('ion-icon');
+        if(icon && icon.hasAttribute('data-icon')) {
+            icon.setAttribute('name', icon.getAttribute('data-icon') + '-outline');
+        }
+    });
+    
+    if(clickedElement) {
+        clickedElement.classList.add('active');
+        const activeIcon = clickedElement.querySelector('ion-icon');
+        if(activeIcon && activeIcon.hasAttribute('data-icon')) {
+            activeIcon.setAttribute('name', activeIcon.getAttribute('data-icon'));
+        }
+    }
+
+    // ==========================================
+    // DYNAMIC PAGE-SPECIFIC SKELETONS
+    // ==========================================
+    let skeletonHTML = '';
+
+    if (pageName === 'earn') {
+        const taskSkeleton = `
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface-color); padding: 15px; border-radius: 16px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 15px; width: 70%;">
+                    <div class="skeleton" style="width: 50px; height: 50px; border-radius: 12px; flex-shrink: 0;"></div>
+                    <div style="width: 100%;">
+                        <div class="skeleton" style="width: 70%; height: 16px; border-radius: 4px; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="width: 40%; height: 12px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div class="skeleton" style="width: 60px; height: 32px; border-radius: 50px;"></div>
+            </div>`;
+        skeletonHTML = `<div style="padding: 20px;">${taskSkeleton.repeat(4)}</div>`;
+
+    } else if (pageName === 'store') {
+        const balanceCardSkeleton = `
+            <div style="background: var(--surface-color); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <div class="skeleton" style="width: 100px; height: 14px; border-radius: 4px; margin-bottom: 12px;"></div>
+                    <div class="skeleton" style="width: 160px; height: 32px; border-radius: 8px;"></div>
+                </div>
+                <div class="skeleton" style="width: 50px; height: 50px; border-radius: 50%;"></div>
+            </div>`;
+        skeletonHTML = `<div style="padding: 20px;">${balanceCardSkeleton}</div>`;
+    } else if (pageName === 'profile') {
+        skeletonHTML = `<div style="padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 15px;"><div class="skeleton" style="width: 100px; height: 100px; border-radius: 50%;"></div></div>`;
+    } else {
+        skeletonHTML = `<div style="display:flex; flex-direction:column; gap: 15px; padding: 20px;"><div class="skeleton" style="width: 100%; height: 140px; border-radius: 16px;"></div></div>`;
+    }
+
+    appContent.innerHTML = skeletonHTML;
+
+    try {
+        const [response] = await Promise.all([
+            fetch(`pages/${pageName}.html`),
+            new Promise(resolve => setTimeout(resolve, 300))
+        ]);
+
+        if (!response.ok) throw new Error("Page not found");
+        
+        const html = await response.text();
+        appContent.innerHTML = html;
+        
+        // PAGE TRIGGERS
+        if (pageName === 'home') { if (typeof window.initHomeLogic === 'function') window.initHomeLogic(); }
+        if (pageName === 'earn') window.renderTasks();
+        if (pageName === 'profile') window.renderProfile();
+        if (pageName === 'store') window.renderStore();
+        if (pageName === 'ads') window.initAdsLogic();
+        if (pageName === 'game') window.initGameLogic();
+        if (pageName === 'deposit') { if (typeof window.initDepositLogic === 'function') window.initDepositLogic(); }
+
+    } catch (error) {
+        appContent.innerHTML = `<div style="text-align:center; padding: 50px; color: var(--text-muted);">Page under construction.</div>`;
+    }
+};
+
+// ==========================================
+// SUBPAGE & OVERLAY ROUTING
+// ==========================================
+
+// 👉 THE FIX: Added pushHistory parameter
+window.openSubPage = async function(folder, file, title, pushHistory = true) {
+    
+    // 2. Tell the browser we opened a popup
+    if (pushHistory) {
+        history.pushState({ view: 'sub', folder: folder, file: file, title: title }, '', '?view=' + file);
+    }
+
+    const container = document.getElementById('subpage-container');
+    const contentArea = document.getElementById('subpage-content');
+    const titleArea = document.getElementById('subpage-title');
+    
+    if (!container) return;
+    titleArea.innerText = title;
+    
+    // Premium Subpage Skeleton
+    contentArea.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap: 15px; padding: 20px;">
+            <div class="skeleton" style="width: 100%; height: 60px; border-radius: 12px;"></div>
+            <div class="skeleton" style="width: 100%; height: 120px; border-radius: 12px;"></div>
+        </div>`;
+    
+    container.classList.add('open');
+
+    try {
+        const [response] = await Promise.all([
+            fetch(`additional/${folder}/${file}.html`),
+            new Promise(resolve => setTimeout(resolve, 300))
+        ]);
+
+        if (!response.ok) throw new Error("File not found");
+        const html = await response.text();
+        contentArea.innerHTML = html;
+        
+        // SUBPAGE AUTO-START TRIGGERS
+        if (file === 'deposit' && typeof window.initDepositLogic === 'function') window.initDepositLogic();
+        if (file === 'transactions' && typeof window.initTransactionsLogic === 'function') window.initTransactionsLogic();
+        if (folder === 'games' && typeof window[`init_${file}`] === 'function') window[`init_${file}`]();
+
+    } catch (error) {
+        contentArea.innerHTML = `<div style="text-align:center; padding-top: 50px; color: #ff3b30;"><p>Screen under construction.</p></div>`;
+    }
+};
+
+// 👉 THE FIX: Let the system handle closing
+window.closeSubPage = function() {
+    history.back();
+};
+
+window.hideSubpageForce = function() {
+    const container = document.getElementById('subpage-container');
+    if (container) container.classList.remove('open');
+    setTimeout(() => {
+        const contentArea = document.getElementById('subpage-content');
+        if (contentArea) contentArea.innerHTML = '';
+    }, 300);
+};
+
+// ==========================================
+// 3. THE SYSTEM BACK BUTTON LISTENER
+// ==========================================
+window.addEventListener('popstate', (event) => {
+    const state = event.state;
+    
+    if (state) {
+        if (state.view === 'main') {
+            const container = document.getElementById('subpage-container');
+            if (container && container.classList.contains('open')) {
+                window.hideSubpageForce();
+            }
+            
+            let targetBtn = null;
+            document.querySelectorAll('.nav-item').forEach(b => {
+                if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + state.page + "'")) {
+                    targetBtn = b;
+                }
+            });
+
+            window.navigateTo(state.page, targetBtn, false);
+            
+        } else if (state.view === 'sub') {
+            window.openSubPage(state.folder, state.file, state.title, false);
+        }
+    } else {
+        window.hideSubpageForce();
+        const firstNavBtn = document.querySelectorAll('.nav-item')[0];
+        if (firstNavBtn) window.navigateTo('home', firstNavBtn, false);
+    }
+});
