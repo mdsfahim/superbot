@@ -1,0 +1,20 @@
+<div style="padding: 10px; padding-bottom: 100px;">
+    
+    <div style="background: var(--surface-color); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+        <div>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px;">Purchasing Power</div>
+            <div id="store-page-balance" style="font-size: 1.8rem; font-weight: bold; color: white;">0 🪙</div>
+        </div>
+        <div style="font-size: 2.5rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 50%;">💳</div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;">
+        <button class="store-cat-btn active" onclick="window.filterStore('All', this)" style="background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; white-space: nowrap;">All Items</button>
+        <button class="store-cat-btn" onclick="window.filterStore('Cash', this)" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; white-space: nowrap;">Cashout</button>
+        <button class="store-cat-btn" onclick="window.filterStore('Mobile', this)" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; white-space: nowrap;">Mobile Top-up</button>
+        <button class="store-cat-btn" onclick="window.filterStore('Crypto', this)" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; white-space: nowrap;">Crypto</button>
+    </div>
+    <style>.store-cat-btn { transition: all 0.2s ease; }</style>
+
+    <div id="store-product-grid"></div>
+</div>

@@ -1,0 +1,63 @@
+<div style="padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 20px;">
+    
+    <div>
+        <p id="home-greeting-time" style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 5px 0;">Welcome back,</p>
+        <h2 id="home-user-name" style="margin: 0; font-size: 1.8rem;">Loading...</h2>
+    </div>
+
+    <div style="background: var(--surface-light); padding: 20px; border-radius: 16px; text-align: center;">
+        <h3 style="margin: 0;">Daily Streak 🔥</h3>
+        <p id="home-streak-text" style="color: var(--text-muted); margin-top: 5px; margin-bottom: 0;">You have logged in 1 day in a row!</p>
+    </div>
+
+    <div id="home-smart-banner" style="background: linear-gradient(135deg, var(--accent-color) 0%, #a855f7 100%); padding: 20px; border-radius: 16px; box-shadow: 0 10px 20px rgba(10, 132, 255, 0.2); cursor: pointer; transition: transform 0.2s;" onclick="window.triggerSmartAction()">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 id="smart-banner-title" style="margin: 0 0 5px 0; color: white; font-size: 1.2rem;">Ready to Earn?</h3>
+                <p id="smart-banner-desc" style="margin: 0; color: rgba(255,255,255,0.8); font-size: 0.9rem;">Complete new tasks today.</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; color: white;">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div style="background: var(--surface-color); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <div style="background: rgba(52, 199, 89, 0.1); color: #34c759; width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center;"><ion-icon name="people"></ion-icon></div>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Referrals</span>
+            </div>
+            <div id="home-stat-refs" style="font-size: 1.5rem; font-weight: bold;">0</div>
+        </div>
+        
+        <div style="background: var(--surface-color); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <div style="background: rgba(255, 149, 0, 0.1); color: #ff9500; width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center;"><ion-icon name="checkmark-done-circle"></ion-icon></div>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Tasks Done</span>
+            </div>
+            <div id="home-stat-tasks" style="font-size: 1.5rem; font-weight: bold;">0</div>
+        </div>
+    </div>
+
+    <h3 style="margin: 10px 0 0 0; font-size: 1.1rem;">Quick Access</h3>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        
+        <div onclick="window.navigateTo('game', document.querySelectorAll('.nav-item')[3])" style="background: var(--surface-color); padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.02); cursor: pointer;">
+            <div style="font-size: 1.8rem; margin-bottom: 5px;">🎮</div>
+            <div style="font-size: 0.8rem; font-weight: bold; color: var(--text-muted);">Arcade</div>
+        </div>
+        
+        <div onclick="window.navigateTo('store', document.querySelectorAll('.nav-item')[2])" style="background: var(--surface-color); padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.02); cursor: pointer;">
+            <div style="font-size: 1.8rem; margin-bottom: 5px;">🛒</div>
+            <div style="font-size: 0.8rem; font-weight: bold; color: var(--text-muted);">Store</div>
+        </div>
+        
+        <div onclick="window.openSubPage('payment', 'deposit', 'Add Funds');" style="background: var(--surface-color); padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.02); cursor: pointer;">
+            <div style="font-size: 1.8rem; margin-bottom: 5px;">💳</div>
+            <div style="font-size: 0.8rem; font-weight: bold; color: var(--text-muted);">Deposit</div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,36 @@
+<div style="padding: 20px; padding-bottom: 100px;">
+    <h2 style="margin-top: 0; margin-bottom: 5px;">Game Center</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Play games to multiply your coins!</p>
+
+    <div id="live-games-list" style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="text-align: center; color: var(--text-muted); padding: 30px;">Loading live games...</div>
+    </div>
+</div>
+
+<div id="game-info-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: var(--surface-color); width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); position: relative;">
+        <button onclick="document.getElementById('game-info-popup').style.display = 'none'" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">✕</button>
+        
+        <div id="popup-game-icon" style="font-size: 3rem; text-align: center; margin-bottom: 10px;">🎮</div>
+        <h3 id="popup-game-title" style="text-align: center; margin-top: 0; margin-bottom: 5px;">Game Title</h3>
+        <p id="popup-game-desc" style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Description.</p>
+
+        <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <div style="font-weight: bold; margin-bottom: 5px; color: #ffcc00;">How to Play:</div>
+            <div id="popup-game-rules" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Rules here</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;">
+            <div style="text-align: center;">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Entry Fee</div>
+                <div id="popup-game-fee" style="font-weight: bold; color: #ff3b30;">- 50 🪙</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Win Reward</div>
+                <div id="popup-game-reward" style="font-weight: bold; color: #34c759;">+ 100 🪙</div>
+            </div>
+        </div>
+
+        <button id="popup-game-start-btn" style="width: 100%; background: var(--accent-color); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer;">Start Game</button>
+    </div>
+</div>
