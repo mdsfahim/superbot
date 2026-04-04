@@ -1,0 +1,15 @@
+<div style="padding: 20px; padding-bottom: 100px;">
+    <h3 style="margin-top: 0; margin-bottom: 20px;">Transaction History</h3>
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; white-space: nowrap; -webkit-overflow-scrolling: touch;" id="trx-tabs">
+        <button onclick="window.filterTransactions('All', this)" class="trx-tab active" style="background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; flex-shrink: 0;">All</button>
+        <button onclick="window.filterTransactions('Earn', this)" class="trx-tab" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; flex-shrink: 0;">Earnings</button>
+        <button onclick="window.filterTransactions('Deposit', this)" class="trx-tab" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; flex-shrink: 0;">Deposits</button>
+        <button onclick="window.filterTransactions('Withdraw', this)" class="trx-tab" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; flex-shrink: 0;">Withdraws</button>
+        <button onclick="window.filterTransactions('Ads', this)" class="trx-tab" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 50px; font-weight: bold; cursor: pointer; flex-shrink: 0;">Ad Campaigns</button>
+    </div>
+
+    <div id="transactions-list" class="history-list">
+        <div style="text-align: center; color: var(--text-muted); padding: 30px;">Loading...</div>
+    </div>
+</div>
