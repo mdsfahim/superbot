@@ -72,7 +72,7 @@ window.launchGameEngine = async function(gameData) {
     }
 
     btn.disabled = true;
-    btn.innerText = "Processing...";
+    btn.innerText = "Loading Game..."; // Updated text!
 
     // 1. Deduct the Entry Fee
     const success = await window.processTransaction(-gameData.entryFee, null);
@@ -90,8 +90,31 @@ window.launchGameEngine = async function(gameData) {
         // 2. Set the global reward so the HTML game knows how much to pay out!
         window.currentGameReward = gameData.reward;
 
-        // 3. MAGIC: Route to the HTML file inside additional/games/
-        window.openSubPage('games', gameData.fileId, gameData.title);
+        // ==========================================
+        // 3. THE MAGIC DYNAMIC SCRIPT LOADER
+        // ==========================================
+        const scriptId = 'script-' + gameData.fileId;
+        
+        // Check if we already loaded this game's JS file earlier
+        if (!document.getElementById(scriptId)) {
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.src = `js/games/${gameData.fileId}.js`; // Automatically matches the file name!
+            
+            // Wait for the script to finish downloading before opening the page
+            script.onload = () => {
+                window.openSubPage('games', gameData.fileId, gameData.title);
+            };
+            
+            script.onerror = () => {
+                window.safeAlert("Failed to load game logic. Check your internet connection.");
+            };
+            
+            document.body.appendChild(script);
+        } else {
+            // Script was already loaded in a previous round, just open the page!
+            window.openSubPage('games', gameData.fileId, gameData.title);
+        }
 
     } else {
         btn.disabled = false;
