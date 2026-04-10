@@ -43,7 +43,7 @@ window.renderTasks = async function() {
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 2rem; background: rgba(168,85,247,0.1); padding: 10px; border-radius: 12px; display:flex; justify-content:center; align-items:center; width: 45px; height: 45px;">💎</div>
                         <div>
-                            <h4 style="margin-bottom: 4px;">Premium Ad (Monetag)</h4>
+                            <h4 style="margin-bottom: 4px;">Premium Ad </h4>
                             <span style="color: #a855f7; font-size: 0.8rem; font-weight: bold;">+ ${adConfig.libtlReward} 🪙</span>
                         </div>
                     </div>
