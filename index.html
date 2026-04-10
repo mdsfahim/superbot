@@ -14,7 +14,16 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
 <body>
-
+<div id="strict-tg-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0f172a; z-index: 99999999; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; color: white; font-family: sans-serif;">
+        <div style="font-size: 4rem; margin-bottom: 20px; color: #3b82f6;">
+            <i class="fab fa-telegram-plane"></i>
+        </div>
+        <h2 style="margin-top: 0; margin-bottom: 10px; font-size: 1.6rem; font-weight: bold;">Official App Required</h2>
+        <p style="color: #94a3b8; max-width: 320px; line-height: 1.6; font-size: 0.95rem;">
+            For security reasons, this app can only be used inside the official <b>Telegram Mobile</b> (Android/iOS) or <b>Telegram Desktop</b> applications. <br><br>
+            <span style="color: #ef4444; font-weight: bold;">Telegram Web and standard web browsers are not supported.</span>
+        </p>
+    </div>
     <header>
         <div class="watermark">SUPERBOT</div>
         <div class="user-info">
@@ -123,16 +132,23 @@
 <script src="js/transactions.js"></script>
 <script src="js/games/coin_slasher.js"></script>
 <script src="js/games/perfect_shot.js"></script>
-<script src="js/games/meteor_dodge.js"></script> 
+<script src="js/games/meteor_dodge.js"></script>
+
     <script>
         window.onload = () => {
-            // 1. SAFELY CONNECT TO TELEGRAM
+            // 👉 1. RUN THE STRICT SECURITY CHECK FIRST
+            if (typeof window.enforceOfficialTelegram === 'function') {
+                const isApproved = window.enforceOfficialTelegram();
+                if (!isApproved) return; // HALT THE APP ENTIRELY
+            }
+
+            // 2. SAFELY CONNECT TO TELEGRAM
             if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
                 window.tg = window.Telegram.WebApp;
                 window.tg.expand(); // Optional: Makes the mini-app full screen!
             }
 
-            // 2. FETCH USER DETAILS
+            // 3. FETCH USER DETAILS
             if (window.tg && window.tg.initDataUnsafe && window.tg.initDataUnsafe.user) {
                 const tgUser = window.tg.initDataUnsafe.user;
                 
@@ -149,14 +165,14 @@
                 }
             }
             
-            // 3. SET INITIAL ROUTER STATE
+            // 4. SET INITIAL ROUTER STATE
             history.replaceState({ view: 'main', page: 'home' }, '', '?page=home');
 
-            // 4. CONNECT TO FIREBASE & MASTER ENGINE
+            // 5. CONNECT TO FIREBASE & MASTER ENGINE
             window.syncUserData();
             
-            // 5. LOAD HOME TAB UI
-            const navItems = document.querySelectorAll('.nav-item');
+            // 6. LOAD HOME TAB UI
+            const navItems = document.querySelectorAll('.nav-items');
             if (navItems.length > 0) {
                 window.navigateTo('home', navItems[0], false); 
             }
